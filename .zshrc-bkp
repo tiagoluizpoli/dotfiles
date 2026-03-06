@@ -1,0 +1,205 @@
+autoload -Uz url-quote-magic
+zle -N self-insert url-quote-magic
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+
+if [ ! -d "$ZINIT_HOME" ]; then
+	mkdir -p "$(dirname $ZINIT_HOME)"
+	git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+
+source "${ZINIT_HOME}/zinit.zsh"
+
+OH_MY_ZSH_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/.oh-my-zsh"
+if [ ! -d "$OH_MY_ZSH_HOME" ]; then
+	mkdir -p "$(dirname $OH_MY_ZSH_HOME)"
+	git clone https://github.com/ohmyzsh/ohmyzsh.git "$OH_MY_ZSH_HOME"
+fi
+
+FZF_PLUGIN_HOME="${XDG_DATA_HOME:-$OH_MY_ZSH_HOME}/custom/plugins/fzf"
+if [ ! -d "$FZF_PLUGIN_HOME" ]; then
+	mkdir -p "$(dirname $FZF_PLUGIN_HOME)"
+	git clone --depth 1 https://github.com/junegunn/fzf.git "$FZF_PLUGIN_HOME"
+	$FZF_PLUGIN_HOME/install
+fi
+
+TASK_PLUGIN_HOME="${XDG_DATA_HOME:-$OH_MY_ZSH_HOME}/custom/plugins/task"
+if [ ! -d "$TASK_PLUGIN_HOME" ]; then
+	mkdir -p "$(dirname $TASK_PLUGIN_HOME)"
+	git clone https://github.com/sawadashota/go-task-completions.git "$TASK_PLUGIN_HOME"
+fi
+
+PNPM_PLUGIN_HOME="${OH_MY_ZSH_HOME:-$HOME}/custom/plugins/pnpm"
+if [ ! -d "$PNPM_PLUGIN_HOME" ]; then
+	mkdir -p "$(dirname $PNPM_PLUGIN_HOME)"
+	git clone --depth=1 https://github.com/ntnyq/omz-plugin-pnpm.git "$PNPM_PLUGIN_HOME"
+fi
+
+# Add in Powerlevel10k
+zinit ice depth=1; zinit light romkatv/powerlevel10k
+
+# Add in zsh plugins
+zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-completions
+zinit light zsh-users/zsh-autosuggestions
+
+
+plugins=(
+	git
+	docker
+	docker-compose
+	dotnet
+	flutter
+	git-commit
+	aws
+	dnf
+	asdf
+	yarn
+	npm
+	nats
+	github
+	node
+	z
+	bgnotify
+	# These two plugins must be installed manually along the tool it self
+	pnpm
+	task
+	kubectl
+)
+
+ASDF_PATH="${XDG_DATA_HOME:-${HOME}/.asdf}"
+if [ ! -d "$ASDF_PATH" ]; then
+	git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
+fi
+
+. "$HOME/.asdf/asdf.sh"
+
+# Load completions
+autoload -U compinit
+compinit -i
+
+# Path to your oh-my-zsh installation.
+export ZSH="$OH_MY_ZSH_HOME"
+
+source $ZSH/oh-my-zsh.sh
+
+
+# source ~/.local/share/zinit/plugins/Aloxaf---fzf-tab/fzf-tab.plugin.zsh
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# ZOXIDE="${XDG_DATA_HOME:-${HOME}/.local/bin}"
+# if [ ! -d "$ZOXIDE" ]; then
+# 	curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+# fi
+
+export PATH="$HOME/.local/bin:$PATH"
+
+
+# History
+HISTSIZE=10000
+HISTFILE=~/.zsh_history
+SAVEHIST=$HISTSIZE
+HISTDUP=erase
+setopt appendhistory
+setopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_ignore_dups
+setopt hist_find_no_dups
+
+# Completion styling
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' menu no
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
+# zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
+
+# Shell integrations
+source <(fzf --zsh)
+
+source "$HOME/.zsh/scripts/ssh-connect.zsh"
+source "$HOME/.zsh/scripts/ssh-connect-v2.zsh"
+
+# alias gtd="~/.zsh/scripts/git-delete-tags-by-pattern.zsh"
+# 1. Add your custom functions to fpath
+fpath=(~/.zsh/functions $fpath)
+
+# 2. Re-initialize completion safely
+autoload -Uz compinit
+compinit -i  # The -i flag ignores insecure directories which stops some errors
+
+# eval "$(zoxide init --cmd cd zsh)"
+
+# Utils
+
+# create directories recursively and cd into it.
+mkdircd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# ranger
+# sudo apt install ranger
+# cd into the last directory visited by ranger (when pressing "q" to leave the tool)
+ranger_cd() {
+    temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
+    ranger --choosedir="$temp_file" -- "${@:-$PWD}"
+    if chosen_dir="$(cat -- "$temp_file")" && [ -n "$chosen_dir" ] && [ "$chosen_dir" != "$PWD" ]; then
+        cd -- "$chosen_dir"
+    fi
+    rm -f -- "$temp_file"
+}
+
+
+# Aliases
+# system replacements
+alias ls='ls --color'
+
+# custom
+alias mkcd='mkdircd'
+alias ranger='ranger_cd'
+alias r='ranger_cd'
+alias openvpn-tivit='sudo openvpn --daemon --script-security 2 --pull-filter ignore redirect-gateway --writepid /run/openvpn-client/tivit-client.conf.pid --config /etc/openvpn/client/fw741.ovpn --ca /etc/openvpn/client/fw471-UDP4-1194-ca.crt'
+
+synctime(){
+  sudo date -s "$(wget -qSO- --max-redirect=0 google.com 2>&1 | grep Date: | cut -d' ' -f5-8)Z"
+}
+
+
+# pnpm
+export PNPM_HOME="/home/tiago.poli/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+# source ~/completion-for-pnpm.zsh
+source ~/.zsh/_kubectl
+
+
+export XDG_RUNTIME_DIR="/run/user/$UID"
+export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
+
+export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+export NODE_EXTRA_CA_CERTS="$HOME/01-dev-env/work/tivit/bastion ssh private keys/certadmin.pem"
+export NODE_OPTIONS=--dns-result-order=ipv4first
+export KUBECONFIG=~/.kube/config:~/.kube/config-lunalabs
+
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+alias ks='kubectl -n solutions'
+alias kl='kubectl --context lunalabs'
+alias kls='kubectl --context lunalabs -n solutions'
