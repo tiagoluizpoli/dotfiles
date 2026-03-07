@@ -29,6 +29,10 @@ fi
 install_plugin "$ZSH/custom/plugins/task" "https://github.com/go-task/task.git"
 install_plugin "$ZSH/custom/plugins/pnpm" "https://github.com/ntnyq/omz-plugin-pnpm.git"
 
+if [[ ! -f "$ZSH/custom/plugins/pnpm/_pnpm" ]] && command -v pnpm &> /dev/null; then
+    pnpm completion zsh > "$ZSH/custom/plugins/pnpm/_pnpm" 2>/dev/null
+fi
+
 # --- 4. Zinit Lights ---
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit light zsh-users/zsh-syntax-highlighting
