@@ -23,6 +23,9 @@ install_plugin() {
 }
 
 install_plugin "$ZSH/custom/plugins/fzf" "https://github.com/junegunn/fzf.git"
+if [[ ! -f "$ZSH/custom/plugins/fzf/bin/fzf" ]]; then
+    "$ZSH/custom/plugins/fzf/install" --bin > /dev/null 2>&1
+fi
 install_plugin "$ZSH/custom/plugins/task" "https://github.com/go-task/task.git"
 install_plugin "$ZSH/custom/plugins/pnpm" "https://github.com/ntnyq/omz-plugin-pnpm.git"
 
@@ -32,23 +35,26 @@ zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 
-# --- 5. Load Git Tag Utilities
-if [[ -f "$HOME/.zsh/functions/git-tag-utils" ]]; then
-    source "$HOME/.zsh/functions/git-tag-utils"
-fi
-
-# --- 6. Oh My Zsh Loading ---
+# --- 5. Oh My Zsh Loading ---
 plugins=(git docker docker-compose dotnet flutter git-commit aws dnf asdf yarn npm nats github node z bgnotify pnpm task kubectl)
 source $ZSH/oh-my-zsh.sh
 
-# --- 7. Environment & Aliases ---
+# --- 6. Environment & Aliases ---
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+if [[ -d "$ZSH/custom/plugins/fzf/bin" ]]; then
+    export PATH="$ZSH/custom/plugins/fzf/bin:$PATH"
+    eval "$(fzf --zsh 2>/dev/null)"
+fi
 . "$HOME/.asdf/asdf.sh" 2>/dev/null
 
 # Custom Script Sources
 [[ -f "$HOME/.zsh/scripts/ssh-connect.zsh" ]] && source "$HOME/.zsh/scripts/ssh-connect.zsh"
 [[ -f "$HOME/.zsh/_kubectl" ]] && source "$HOME/.zsh/_kubectl"
+
+# --- 7. Load Git Tag Utilities ---
+if [[ -f "$HOME/.zsh/functions/git-tag-utils" ]]; then
+    source "$HOME/.zsh/functions/git-tag-utils"
+fi
 
 
 # Functions
