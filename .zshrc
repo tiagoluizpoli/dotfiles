@@ -80,9 +80,6 @@ alias r='ranger_cd'
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
 
-# certs
-export NODE_EXTRA_CA_CERTS="$HOME/01-dev-env/work/tivit/bastion ssh private keys/certadmin.pem"
-
 # settings
 # History
 HISTSIZE=10000
@@ -102,3 +99,9 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' menu no
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
+
+
+# Tivit specifics
+# certs
+export SSL_CERT_FILE="$HOME/01-dev-env/work/tivit/bastion ssh private keys/certadmin.pem"
+export NODE_EXTRA_CA_CERTS="$SSL_CERT_FILE"
