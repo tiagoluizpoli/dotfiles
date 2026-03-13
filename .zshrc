@@ -110,9 +110,6 @@ alias r='ranger_cd'
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
 
-# certs
-export NODE_EXTRA_CA_CERTS="$HOME/01-dev-env/work/tivit/bastion ssh private keys/certadmin.pem"
-
 # settings
 # History
 HISTSIZE=10000
@@ -137,3 +134,8 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
     source /etc/profile.d/vte.sh
 fi
+
+# Tivit specifics
+# certs
+# export SSL_CERT_FILE="$HOME/01-dev-env/work/tivit/bastion ssh private keys/certadmin.pem"
+# export NODE_EXTRA_CA_CERTS="$SSL_CERT_FILE"
