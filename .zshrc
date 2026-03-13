@@ -40,7 +40,27 @@ zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 
 # --- 5. Oh My Zsh Loading ---
-plugins=(git docker docker-compose dotnet flutter git-commit aws dnf asdf yarn npm nats github node z bgnotify pnpm task kubectl)
+plugins=(
+    git 
+    docker 
+    docker-compose 
+    dotnet 
+    flutter 
+    git-commit 
+    aws 
+    dnf 
+    asdf 
+    yarn 
+    npm 
+    nats 
+    github 
+    node 
+    z 
+    bgnotify 
+    pnpm 
+    task 
+    kubectl
+)
 source $ZSH/oh-my-zsh.sh
 
 # --- 6. Environment & Aliases ---
@@ -112,3 +132,8 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' menu no
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
+
+# Tilix fix
+if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
+    source /etc/profile.d/vte.sh
+fi
