@@ -4,6 +4,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # --- 2. Path & Function Setup ---
+export PATH=/home/tiago/.opencode/bin:$PATH
 export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
 fpath=(~/.zsh/functions $fpath)
 
@@ -106,6 +107,8 @@ alias mkcd='mkdircd'
 alias ranger='ranger_cd'
 alias r='ranger_cd'
 
+alias a='antigravity'
+
 # Zsh fixes
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
@@ -134,8 +137,3 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
     source /etc/profile.d/vte.sh
 fi
-
-# Tivit specifics
-# certs
-# export SSL_CERT_FILE="$HOME/01-dev-env/work/tivit/bastion ssh private keys/certadmin.pem"
-# export NODE_EXTRA_CA_CERTS="$SSL_CERT_FILE"
