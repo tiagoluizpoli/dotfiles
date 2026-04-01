@@ -17,6 +17,7 @@ This repository contains configurations for Zsh, including theme and plugin setu
   - `zsh-completions`
   - `fzf-tab`
 - **Version Management**: Automated [asdf-vm](https://asdf-vm.com/) binary installation with staged shell completions.
+- **GNOME Extensions**: Automated setup script for Dash to Panel, gTile, Copyous, and more.
 - **Aliases & Utilities**: Custom aliases for `kubectl`, `docker`, `ranger`, and more.
 
 ## 🚀 Getting Started
@@ -71,6 +72,15 @@ To remove the symlinks created by Stow:
 ```bash
 stow -D .
 ```
+
+### 📦 GNOME Shell Extensions
+To automatically install and enable all required GNOME extensions (Dash to Panel, gTile, Copyous, etc.) on a new system:
+
+1. Ensure `jq` and `unzip` are installed.
+2. Run the specialized installation script from the root of this repository:
+   ```bash
+   ./configFiles/scripts/gnome-extensions/install.sh
+   ```
 
 ## 📄 License
 
