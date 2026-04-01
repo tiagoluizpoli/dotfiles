@@ -71,40 +71,27 @@ if [[ -d "$ZSH/custom/plugins/fzf/bin" ]]; then
 fi
 
 # --- 8. asdf Staged Management ---
-# 1. First time: Install asdf binary only
-# 2. Second time: Install asdf completions
-# 3. Third time+: Do nothing
 ASDF_BIN="$HOME/.local/bin/asdf"
 ASDF_COMPLETIONS="$HOME/.zsh/completions/_asdf"
 
-if [[ ! -f "$ASDF_BIN" ]]; then
-    echo "asdf binary not found. Downloading latest..."
-    mkdir -p "$HOME/.local/bin"
-    # Get latest version tag (e.g. 0.16.0)
-    LATEST_TAG=$(curl -s https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
-    DOWNLOAD_URL="https://github.com/asdf-vm/asdf/releases/download/v${LATEST_TAG}/asdf-v${LATEST_TAG}-linux-amd64.tar.gz"
-    
-    curl -sL "$DOWNLOAD_URL" -o /tmp/asdf.tar.gz
-    tar -xzf /tmp/asdf.tar.gz -C "$HOME/.local/bin"
-    rm /tmp/asdf.tar.gz
-    chmod +x "$ASDF_BIN"
-    
-    echo "asdf v${LATEST_TAG} installed. Please restart your shell."
-    return # Stop execution here for the first run
+if [[ ! -f "$ASDF_BIN" || ! -f "$ASDF_COMPLETIONS" ]]; then
+    if [[ ! -f "$ASDF_BIN" ]]; then
+        echo "asdf binary missing. Downloading latest..."
+        LATEST_TAG=$(curl -s https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep -oE 'v[0-9.]+' | head -1)
+        mkdir -p "${ASDF_BIN%/*}"
+        curl -sL "https://github.com/asdf-vm/asdf/releases/download/${LATEST_TAG}/asdf-${LATEST_TAG}-linux-amd64.tar.gz" | tar -xzC "${ASDF_BIN%/*}"
+        echo "asdf ${LATEST_TAG} installed. Please restart shell."
+    else
+        echo "Generating completions..."
+        mkdir -p "${ASDF_COMPLETIONS%/*}" && "$ASDF_BIN" completion zsh > "$ASDF_COMPLETIONS" 2>/dev/null
+        echo "asdf completions ready. Please restart shell."
+    fi
+    return
 fi
 
-if [[ ! -f "$ASDF_COMPLETIONS" ]]; then
-    echo "Generating asdf completions..."
-    mkdir -p "$(dirname "$ASDF_COMPLETIONS")"
-    "$ASDF_BIN" completion zsh > "$ASDF_COMPLETIONS" 2>/dev/null
-    echo "asdf completions installed successfully."
-    return # Stop execution here for the second run
-fi
-
-# Final setup (runs only when both asdf binary and completions are present)
+# Load asdf
 export PATH="$HOME/.asdf/shims:$PATH"
 fpath=("$HOME/.zsh/completions" $fpath)
-# asdf is now a binary; shims manage tool versions.
 
 # Custom Script Sources
 [[ -f "$HOME/.zsh/scripts/ssh-connect.zsh" ]] && source "$HOME/.zsh/scripts/ssh-connect.zsh"

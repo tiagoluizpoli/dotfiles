@@ -16,6 +16,7 @@ This repository contains configurations for Zsh, including theme and plugin setu
   - `zsh-autosuggestions`
   - `zsh-completions`
   - `fzf-tab`
+- **Version Management**: Automated [asdf-vm](https://asdf-vm.com/) binary installation with staged shell completions.
 - **Aliases & Utilities**: Custom aliases for `kubectl`, `docker`, `ranger`, and more.
 
 ## 🚀 Getting Started
@@ -54,6 +55,12 @@ Ensure you have the following installed on your system:
    ```
 
    The first time you run Zsh, it will automatically download [Zinit](https://github.com/zdharma-continuum/zinit), [Oh My Zsh](https://ohmyz.sh/), and the configured plugins.
+
+   #### 📦 Staged asdf Installation
+   The `asdf` version manager is installed in stages for performance:
+   - **Phase 1**: Downloads the latest binary to `~/.local/bin`.
+   - **Phase 2**: Generates shell completions in `~/.zsh/completions/`.
+   - **Phase 3**: Fully initializes the environment (shims and fpath).
 
 ## 🛠 Usage
 
