@@ -43,6 +43,7 @@ zinit light zsh-users/zsh-autosuggestions
 # --- 5. Oh My Zsh Loading ---
 plugins=(
     git 
+    gh
     docker 
     docker-compose 
     dotnet 
@@ -50,14 +51,16 @@ plugins=(
     git-commit 
     aws 
     dnf 
+    asdf
     yarn 
     npm 
+    pnpm 
+    bun
     nats 
     github 
     node 
-    z 
-    bgnotify 
-    pnpm 
+    z
+    bgnotify     
     task 
     kubectl
 )
@@ -129,6 +132,7 @@ alias ranger='ranger_cd'
 alias r='ranger_cd'
 
 alias a='antigravity'
+alias h='herdr'
 
 # Zsh fixes
 autoload -Uz url-quote-magic
@@ -158,3 +162,13 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
     source /etc/profile.d/vte.sh
 fi
+# bun completions
+[ -s "/home/tiago/.bun/_bun" ] && source "/home/tiago/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/tiago/.local/bin:$PATH"

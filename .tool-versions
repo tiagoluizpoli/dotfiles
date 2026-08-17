@@ -1,5 +1,5 @@
 task 3.45.4
-nodejs 22.22.0
+nodejs 24.19.0
 awscli 2.7.17
 terraform 1.12.2
 zoxide 0.9.8
