@@ -60,6 +60,7 @@ plugins=(
     github 
     node 
     z
+    zoxide
     bgnotify     
     task 
     kubectl
@@ -131,6 +132,19 @@ alias mkcd='mkdircd'
 alias ranger='ranger_cd'
 alias r='ranger_cd'
 
+# Change the current shell directory to the directory selected when Yazi exits.
+unalias y 2>/dev/null
+y() {
+    local cwd_file exit_code cwd
+    cwd_file="$(mktemp -t yazi-cwd.XXXXXXXXXX)" || return 1
+    yazi "$@" --cwd-file="$cwd_file"
+    exit_code=$?
+    cwd="$(<"$cwd_file")"
+    [[ -n "$cwd" && "$cwd" != "$PWD" ]] && builtin cd -- "$cwd"
+    rm -f -- "$cwd_file"
+    return "$exit_code"
+}
+
 alias a='antigravity'
 alias h='herdr'
 
@@ -172,3 +186,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Added by Antigravity CLI installer
 export PATH="/home/tiago/.local/bin:$PATH"
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/tiagoluizpoli/.local/bin:$PATH"
