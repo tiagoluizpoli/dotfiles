@@ -66,6 +66,8 @@ plugins=(
     kubectl
 )
 source $ZSH/oh-my-zsh.sh
+source "$HOME/.cargo/env"
+source <(caddy completion zsh)
 
 # --- 6. Environment & Aliases ---
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -190,3 +192,46 @@ export PATH="/home/tiago/.local/bin:$PATH"
 
 # Added by Antigravity CLI installer
 export PATH="/home/tiagoluizpoli/.local/bin:$PATH"
+
+fpath=(~/.local/.zfunc $fpath)
+autoload -Uz compinit
+compinit
+
+# Branchlet setup: added on 2026-09-04
+_branchlet() {
+  local -a commands
+  commands=(
+    'create:Create a new worktree'
+    'list:List all worktrees'
+    'delete:Delete a worktree'
+    'settings:Manage configuration'
+  )
+  _arguments -C \
+    '(-h --help)'{-h,--help}'[Show help]' \
+    '(-v --version)'{-v,--version}'[Show version]' \
+    '(-m --mode)'{-m,--mode}'[Set mode]:mode:(menu create list delete settings)' \
+    '--from-wrapper[Called from shell wrapper]' \
+    '1:command:->command'
+  case "$state" in
+    command)
+      _describe -t commands 'branchlet commands' commands
+      ;;
+  esac
+}
+compdef _branchlet branchlet
+branchlet() {
+  if [ $# -eq 0 ]; then
+    local dir=$(FORCE_COLOR=3 command branchlet --from-wrapper)
+    if [ -n "$dir" ]; then
+      builtin cd "$dir" && echo "Branchlet: Navigated to $(pwd)"
+    fi
+  else
+    command branchlet "$@"
+  fi
+}
+# End Branchlet setup
+
+# testing branchlet changes (my changes)
+ branchl() {
+    node /home/tiago/workspaces/repos/open-source/branchlet/dist/index.js "$@"
+  }

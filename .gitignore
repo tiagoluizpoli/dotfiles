@@ -1,0 +1,18 @@
+**/*.log
+**/*.sock
+
+# Config
+.config/turborepo
+.config/google-chrome-for-testing
+.config/boilerplates
+.config/caddy
+.config/Code
+.config/vscode-sqltools
+
+# gh
+.config/gh/hosts.yml
+
+
+# Herdr specifics
+.config/herdr/release-notes*
+.config/herdr/session*
