@@ -25,4 +25,10 @@ _darcs
 configFiles
 
 # Documentation is repository material, not a home-directory deployment.
-docs
+^/docs
+
+# Repository support material is not part of the home-directory configuration.
+^/scripts
+^/tests
+\.agents/guidance/__pycache__
+\.agents/guidance/test

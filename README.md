@@ -15,8 +15,7 @@ This repository contains configurations for Zsh, including theme and plugin setu
   - `zsh-syntax-highlighting`
   - `zsh-autosuggestions`
   - `zsh-completions`
-  - `fzf-tab`
-- **Version Management**: Automated [asdf-vm](https://asdf-vm.com/) binary installation with staged shell completions.
+- **Version Management**: [Mise](https://mise.jdx.dev/) with pinned tool versions in `.tool-versions`.
 - **GNOME Extensions**: Automated setup script for Dash to Panel, gTile, Copyous, and more.
 - **Aliases & Utilities**: Custom aliases for `kubectl`, `docker`, `ranger`, and more.
 
@@ -39,29 +38,53 @@ Ensure you have the following installed on your system:
    cd ~/dotfiles
    ```
 
-2. **Deploy dotfiles using Stow**:
+2. **Bootstrap user-space shell tools**:
 
-   GNU Stow uses symlinks to manage configurations. To link the configurations in this repo to your home directory:
+   First preview what a machine needs; this makes no changes:
 
    ```bash
-   stow .
+   ./scripts/bootstrap-zsh --check
    ```
 
-   *Note: If you have an existing `.zshrc`, Stow might fail. Back up your existing file before running the command.*
+   After reviewing the output, install the required user-space tools:
 
-3. **Reload your shell**:
+   ```bash
+   ./scripts/bootstrap-zsh --apply
+   ```
+
+   The bootstrap never uses `sudo`, an OS package manager, or edits shell
+   startup files. It expects `zsh`, `git`, `curl`, and GNU `stow` to be
+   installed already; it reports any missing prerequisite before making a
+   deployment possible.
+
+3. **Deploy dotfiles using Stow**:
+
+   GNU Stow uses symlinks to manage configurations. Start with a no-folding
+   simulation: this maps individual curated files while leaving runtime state
+   in existing directories such as `~/.codex` and `~/.claude` untouched.
+
+   ```bash
+   stow --simulate --verbose=2 --no-folding .
+   ```
+
+   When the proposed links look right, apply the same mapping:
+
+   ```bash
+   stow --no-folding .
+   ```
+
+   *Note: If a curated target file already exists, Stow will report a conflict.
+   Inspect and migrate that one file before running the non-simulated command;
+   do not use `--adopt` on agent configuration or credentials.*
+
+4. **Reload your shell**:
 
    ```bash
    source ~/.zshrc
    ```
 
-   The first time you run Zsh, it will automatically download [Zinit](https://github.com/zdharma-continuum/zinit), [Oh My Zsh](https://ohmyz.sh/), and the configured plugins.
-
-   #### 📦 Staged asdf Installation
-   The `asdf` version manager is installed in stages for performance:
-   - **Phase 1**: Downloads the latest binary to `~/.local/bin`.
-   - **Phase 2**: Generates shell completions in `~/.zsh/completions/`.
-   - **Phase 3**: Fully initializes the environment (shims and fpath).
+   Zsh loads the tools prepared by the explicit bootstrap; it does not download
+   or install software during shell startup.
 
 ## 🛠 Usage
 

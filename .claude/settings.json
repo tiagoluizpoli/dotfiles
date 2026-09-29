@@ -1,0 +1,29 @@
+{
+  "model": "sonnet",
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "medium"
+    },
+    "claude-sonnet-5": {
+      "effortLevel": "medium"
+    }
+  },
+  "theme": "dark",
+  "voice": {
+    "enabled": false,
+    "mode": "hold"
+  },
+  "agentPushNotifEnabled": true,
+  "voiceEnabled": false,
+  "enabledPlugins": {
+    "worktrunk@worktrunk": true
+  },
+  "extraKnownMarketplaces": {
+    "worktrunk": {
+      "source": {
+        "source": "github",
+        "repo": "max-sixty/worktrunk"
+      }
+    }
+  }
+}

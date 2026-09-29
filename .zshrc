@@ -49,6 +49,7 @@ if [[ -r "$OH_MY_ZSH_HOME/oh-my-zsh.sh" ]]; then
     aws
     dnf
     mise
+    fzf
     yarn
     npm
     pnpm
@@ -74,12 +75,6 @@ if (( $+commands[wt] )); then
 fi
 
 [[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
-if (( $+commands[caddy] )); then
-  source <(caddy completion zsh)
-fi
-if (( $+commands[fzf] )); then
-  eval "$(fzf --zsh)"
-fi
 
 [[ -r "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 

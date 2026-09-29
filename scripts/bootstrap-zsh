@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+
+# Install the user-space programs expected by this repository's .zshrc.
+# Default mode is read-only. Run with --apply only after reviewing the output.
+
+set -euo pipefail
+
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+mode="check"
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/bootstrap-zsh [--check|--apply]
+
+  --check  Report missing prerequisites, including GNU Stow, and user-space tools.
+  --apply  Install missing user-space tools and completions. Never uses sudo or
+           an operating-system package manager.
+EOF
+}
+
+case "${1:---check}" in
+  --check) ;;
+  --apply) mode="apply" ;;
+  --help|-h) usage; exit 0 ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+local_bin="$HOME/.local/bin"
+zinit_home="$data_home/zinit/zinit.git"
+omz_home="$data_home/.oh-my-zsh"
+completion_dir="$HOME/.zsh/completions"
+
+status() {
+  local label="$1" value="$2"
+  printf '%-14s %s\n' "$label:" "$value"
+}
+
+require_command() {
+  local command_name="$1"
+  if ! command -v "$command_name" >/dev/null 2>&1; then
+    printf 'Missing required system prerequisite: %s\n' "$command_name" >&2
+    return 1
+  fi
+}
+
+tool_status() {
+  local label="$1" path="$2"
+  if [[ -e "$path" ]]; then
+    status "$label" "installed ($path)"
+  else
+    status "$label" 'missing'
+  fi
+}
+
+check() {
+  echo 'Bootstrap check only; no changes were made.'
+  for command_name in zsh git curl stow; do
+    if command -v "$command_name" >/dev/null 2>&1; then
+      status "Prerequisite $command_name" "available ($(command -v "$command_name"))"
+    else
+      status "Prerequisite $command_name" 'MISSING (install it with your OS package manager)'
+    fi
+  done
+
+  tool_status 'Zinit' "$zinit_home/zinit.zsh"
+  tool_status 'Oh My Zsh' "$omz_home/oh-my-zsh.sh"
+  if command -v mise >/dev/null 2>&1 || [[ -x "$local_bin/mise" ]]; then
+    status 'Mise' 'installed'
+  else
+    status 'Mise' 'missing'
+  fi
+  if command -v rustup >/dev/null 2>&1 || [[ -x "$HOME/.cargo/bin/rustup" ]]; then
+    status 'Rust/Cargo' 'installed'
+  else
+    status 'Rust/Cargo' 'missing'
+  fi
+  tool_status 'Caddy completion' "$completion_dir/_caddy"
+}
+
+clone_if_missing() {
+  local repository="$1" destination="$2"
+  if [[ -d "$destination/.git" ]]; then
+    return
+  fi
+  mkdir -p "$(dirname -- "$destination")"
+  git clone --depth 1 "$repository" "$destination"
+}
+
+install_mise() {
+  local installer mise_bin
+  mise_bin="$local_bin/mise"
+  if command -v mise >/dev/null 2>&1 || [[ -x "$mise_bin" ]]; then
+    return
+  fi
+
+  mkdir -p "$local_bin"
+  installer="$(mktemp)"
+  trap 'rm -f "$installer"' RETURN
+  curl --fail --show-error --silent --location https://mise.run -o "$installer"
+  sh "$installer"
+  rm -f "$installer"
+  trap - RETURN
+  [[ -x "$mise_bin" ]]
+}
+
+install_rustup() {
+  local installer
+  if command -v rustup >/dev/null 2>&1 || [[ -x "$HOME/.cargo/bin/rustup" ]]; then
+    return
+  fi
+
+  installer="$(mktemp)"
+  trap 'rm -f "$installer"' RETURN
+  curl --fail --show-error --silent --location https://sh.rustup.rs -o "$installer"
+  sh "$installer" -y --no-modify-path
+  rm -f "$installer"
+  trap - RETURN
+}
+
+apply() {
+  require_command zsh
+  require_command git
+  require_command curl
+  require_command stow
+
+  install_mise
+  mise_bin="${MISE_BIN:-$local_bin/mise}"
+  [[ -x "$mise_bin" ]] || mise_bin="$(command -v mise)"
+
+  clone_if_missing https://github.com/zdharma-continuum/zinit.git "$zinit_home"
+  clone_if_missing https://github.com/ohmyzsh/ohmyzsh.git "$omz_home"
+  clone_if_missing https://github.com/ntnyq/omz-plugin-pnpm.git "$omz_home/custom/plugins/pnpm"
+  install_rustup
+
+  (
+    cd "$repo_root"
+    "$mise_bin" install
+    mkdir -p "$completion_dir"
+    "$mise_bin" exec -- caddy completion zsh > "$completion_dir/_caddy"
+  )
+
+  echo 'Bootstrap complete. Restart Zsh to load the installed integrations.'
+}
+
+if [[ "$mode" == 'check' ]]; then
+  check
+else
+  apply
+fi
