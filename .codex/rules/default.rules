@@ -1,0 +1,2 @@
+prefix_rule(pattern=["git", "fetch"], decision="allow")
+prefix_rule(pattern=["git", "switch", "-c", "feat/worktree-path-template", "origin/main"], decision="allow")

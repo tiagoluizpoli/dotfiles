@@ -1,0 +1,20 @@
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
+
+[features]
+hooks = true
+
+[plugins."sites@openai-bundled"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."worktrunk@worktrunk"]
+enabled = true
+
+[marketplaces.worktrunk]
+source_type = "git"
+source = "https://github.com/max-sixty/worktrunk.git"

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+test_home="$(mktemp -d)"
+
+output="$(HOME="$test_home" XDG_DATA_HOME="$test_home/.local/share" bash "$repo_root/scripts/bootstrap-zsh" --check)"
+
+grep -Fq 'Bootstrap check only; no changes were made.' <<<"$output"
+grep -Fq 'Prerequisite stow:' <<<"$output"
+grep -Fq 'Zinit:' <<<"$output"
+grep -Fq 'Oh My Zsh:' <<<"$output"
+grep -Fq 'Mise:' <<<"$output"
+grep -Fq 'Rust/Cargo:' <<<"$output"
+test ! -e "$test_home/.local/share/zinit/zinit.git"
+test ! -e "$test_home/.local/share/.oh-my-zsh"
+
+echo 'bootstrap-zsh check mode: PASS'

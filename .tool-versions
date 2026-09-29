@@ -5,3 +5,4 @@ terraform 1.12.2
 zoxide 0.9.8
 kubectl 1.34.1
 caddy 2.11.4
+fzf 0.67.0

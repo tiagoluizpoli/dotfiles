@@ -1,6 +1,10 @@
 **/*.log
 **/*.sock
 
+# Local shell overrides. These belong in the home directory, never in Git.
+/.zshrc.local
+/.zshenv.local
+
 # Config
 .config/turborepo
 .config/google-chrome-for-testing

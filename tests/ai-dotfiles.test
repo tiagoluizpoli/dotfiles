@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+
+required_paths=(
+  .agents/guidance/ROUTER.md
+  .agents/guidance/baseline.md
+  .agents/guidance/capability_gaps.py
+  .claude/CLAUDE.md
+  .claude/settings.json
+  .claude/agents/impeccable-asset-producer.md
+  .codex/AGENTS.md
+  .codex/config.toml
+  .codex/rules/default.rules
+)
+
+for path in "${required_paths[@]}"; do
+  [[ -f "$repo_dir/$path" ]] || {
+    printf 'Missing curated AI asset: %s\n' "$path" >&2
+    exit 1
+  }
+done
+
+jq -e . "$repo_dir/.claude/settings.json" >/dev/null
+
+for forbidden_path in \
+  .codex/auth.json \
+  .codex/history.jsonl \
+  .codex/sessions \
+  .claude/.credentials.json \
+  .claude/history.jsonl \
+  .claude/projects \
+  .claude/sessions \
+  .config/anthropic/credentials \
+  .agents/skills \
+  .claude/skills \
+  .codex/skills; do
+  [[ ! -e "$repo_dir/$forbidden_path" ]] || {
+    printf 'Runtime or credential material must not be tracked: %s\n' "$forbidden_path" >&2
+    exit 1
+  }
+done
+
+if rg -n --hidden --glob '!.git/**' \
+  '(DOKPLOY_API_KEY|paperclip-api-key|\.credentials\.json|auth\.json)' \
+  "$repo_dir/.codex" "$repo_dir/.claude" >/dev/null; then
+  printf 'Sensitive AI configuration marker found in curated files.\n' >&2
+  exit 1
+fi
+
+stow_target=$(mktemp -d)
+stow_plan=$(stow --simulate --verbose=2 --no-folding --target "$stow_target" -d "$repo_dir" . 2>&1)
+grep -Fq 'LINK: .codex/config.toml' <<<"$stow_plan"
+grep -Fq 'LINK: .claude/settings.json' <<<"$stow_plan"
+grep -Fq 'LINK: .agents/guidance/ROUTER.md' <<<"$stow_plan"
+! grep -Fq 'level of scripts' <<<"$stow_plan"
+! grep -Fq 'level of tests' <<<"$stow_plan"
+! grep -Fq 'guidance/__pycache__' <<<"$stow_plan"
+
+echo 'AI dotfiles curation: PASS'
