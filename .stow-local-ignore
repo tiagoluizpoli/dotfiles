@@ -30,5 +30,12 @@ configFiles
 # Repository support material is not part of the home-directory configuration.
 ^/scripts
 ^/tests
+^/templates
 \.agents/guidance/__pycache__
 \.agents/guidance/test
+
+# Local templates and historical backups are repository material, not targets.
+^/\.zshenv\.local\.example$
+^/\.zshrc\.local\.example$
+^/\.zshrc-bkp$
+^/\.zshrc-latest-bkp$

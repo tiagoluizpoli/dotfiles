@@ -10,16 +10,22 @@ mode="check"
 
 usage() {
   cat <<'EOF'
-Usage: scripts/bootstrap-zsh [--check|--apply]
+Usage: scripts/bootstrap-zsh [--check|--init-local-env|--init-local-config|--apply]
 
   --check  Report missing prerequisites, including GNU Stow, and user-space tools.
   --apply  Install missing user-space tools and completions. Never uses sudo or
            an operating-system package manager.
+  --init-local-env  Create ~/.zshenv.local from its placeholder template if it
+                     is missing. This makes no other changes.
+  --init-local-config  Create missing local Zsh environment and Codex config
+                       files from their secret-free templates. No downloads.
 EOF
 }
 
 case "${1:---check}" in
   --check) ;;
+  --init-local-env) mode="init-local-env" ;;
+  --init-local-config) mode="init-local-config" ;;
   --apply) mode="apply" ;;
   --help|-h) usage; exit 0 ;;
   *) usage >&2; exit 2 ;;
@@ -30,6 +36,10 @@ local_bin="$HOME/.local/bin"
 zinit_home="$data_home/zinit/zinit.git"
 omz_home="$data_home/.oh-my-zsh"
 completion_dir="$HOME/.zsh/completions"
+local_zshenv="${ZDOTDIR:-$HOME}/.zshenv.local"
+local_zshenv_template="$repo_root/.zshenv.local.example"
+local_codex_config="$HOME/.codex/config.toml"
+local_codex_config_template="$repo_root/templates/codex/config.toml"
 
 status() {
   local label="$1" value="$2"
@@ -76,6 +86,57 @@ check() {
     status 'Rust/Cargo' 'missing'
   fi
   tool_status 'Caddy completion' "$completion_dir/_caddy"
+  if [[ -e "$local_zshenv" ]]; then
+    status 'Local zshenv' "present ($local_zshenv)"
+  else
+    status 'Local zshenv' 'MISSING (will create from .zshenv.local.example during --apply)'
+  fi
+  if [[ -e "$local_codex_config" ]]; then
+    status 'Local Codex config' "present ($local_codex_config)"
+  else
+    status 'Local Codex config' 'MISSING (will create from templates/codex/config.toml during --apply)'
+  fi
+}
+
+create_local_zshenv_if_missing() {
+  if [[ -e "$local_zshenv" ]]; then
+    return
+  fi
+  [[ -f "$local_zshenv_template" ]] || {
+    printf 'Missing local environment template: %s\n' "$local_zshenv_template" >&2
+    return 1
+  }
+
+  mkdir -p "$(dirname -- "$local_zshenv")"
+  (
+    umask 077
+    cp "$local_zshenv_template" "$local_zshenv"
+  )
+  chmod 600 "$local_zshenv"
+  status 'Local zshenv' "created ($local_zshenv; replace placeholder values before using integrations)"
+}
+
+create_local_codex_config_if_missing() {
+  if [[ -e "$local_codex_config" ]]; then
+    return
+  fi
+  [[ -f "$local_codex_config_template" ]] || {
+    printf 'Missing local Codex config template: %s\n' "$local_codex_config_template" >&2
+    return 1
+  }
+
+  mkdir -p "$(dirname -- "$local_codex_config")"
+  (
+    umask 077
+    cp "$local_codex_config_template" "$local_codex_config"
+  )
+  chmod 600 "$local_codex_config"
+  status 'Local Codex config' "created ($local_codex_config; Codex will keep its machine-specific state local)"
+}
+
+create_local_config_if_missing() {
+  create_local_zshenv_if_missing
+  create_local_codex_config_if_missing
 }
 
 clone_if_missing() {
@@ -123,6 +184,7 @@ apply() {
   require_command git
   require_command curl
   require_command stow
+  create_local_config_if_missing
 
   install_mise
   mise_bin="${MISE_BIN:-$local_bin/mise}"
@@ -143,8 +205,9 @@ apply() {
   echo 'Bootstrap complete. Restart Zsh to load the installed integrations.'
 }
 
-if [[ "$mode" == 'check' ]]; then
-  check
-else
-  apply
-fi
+case "$mode" in
+  check) check ;;
+  init-local-env) create_local_zshenv_if_missing ;;
+  init-local-config) create_local_config_if_missing ;;
+  apply) apply ;;
+esac

@@ -9,10 +9,12 @@ required_paths=(
   .agents/guidance/capability_gaps.py
   .claude/CLAUDE.md
   .claude/settings.json
-  .claude/agents/impeccable-asset-producer.md
+  .claude/hooks/herdr-agent-state.sh
+  .claude/hooks/orca-agent-hook.sh
+  .claude/hooks/orca-statusline.sh
   .codex/AGENTS.md
-  .codex/config.toml
   .codex/rules/default.rules
+  templates/codex/config.toml
 )
 
 for path in "${required_paths[@]}"; do
@@ -23,6 +25,22 @@ for path in "${required_paths[@]}"; do
 done
 
 jq -e . "$repo_dir/.claude/settings.json" >/dev/null
+jq -e '.hooks.SessionStart and .hooks.PermissionRequest and .statusLine.command' \
+  "$repo_dir/.claude/settings.json" >/dev/null
+jq -e '[.hooks | .. | objects | select(.command? == "$HOME/.claude/hooks/orca-agent-hook.sh")] | length > 0' \
+  "$repo_dir/.claude/settings.json" >/dev/null
+rg -Fq 'model = "gpt-5.6-luna"' "$repo_dir/templates/codex/config.toml"
+rg -Fq '[mcp_servers.codegraph]' "$repo_dir/templates/codex/config.toml"
+! rg -Fq 'DOKPLOY_API_KEY' "$repo_dir/templates/codex/config.toml"
+! rg -Fq '[projects.' "$repo_dir/templates/codex/config.toml"
+! rg -Fq '[hooks.state' "$repo_dir/templates/codex/config.toml"
+! find "$repo_dir/.claude/agents" -type f -print -quit 2>/dev/null | grep -q .
+
+hook_home=$(mktemp -d)
+hook_output=$(printf '{"hook_event_name":"SessionStart"}\n' | HOME="$hook_home" "$repo_dir/.claude/hooks/orca-agent-hook.sh")
+[[ "$hook_output" == '{}' ]]
+status_output=$(printf '{}\n' | HOME="$hook_home" "$repo_dir/.claude/hooks/orca-statusline.sh")
+[[ -z "$status_output" ]]
 
 for forbidden_path in \
   .codex/auth.json \
@@ -44,16 +62,20 @@ done
 
 if rg -n --hidden --glob '!.git/**' \
   '(DOKPLOY_API_KEY|paperclip-api-key|\.credentials\.json|auth\.json)' \
-  "$repo_dir/.codex" "$repo_dir/.claude" >/dev/null; then
+  "$repo_dir/.codex" "$repo_dir/.claude" "$repo_dir/templates" >/dev/null; then
   printf 'Sensitive AI configuration marker found in curated files.\n' >&2
   exit 1
 fi
 
 stow_target=$(mktemp -d)
 stow_plan=$(stow --simulate --verbose=2 --no-folding --target "$stow_target" -d "$repo_dir" . 2>&1)
-grep -Fq 'LINK: .codex/config.toml' <<<"$stow_plan"
 grep -Fq 'LINK: .claude/settings.json' <<<"$stow_plan"
 grep -Fq 'LINK: .agents/guidance/ROUTER.md' <<<"$stow_plan"
+! grep -Fq 'LINK: templates/codex/config.toml' <<<"$stow_plan"
+! grep -Fq 'LINK: .zshenv.local.example' <<<"$stow_plan"
+! grep -Fq 'LINK: .zshrc.local.example' <<<"$stow_plan"
+! grep -Fq 'LINK: .zshrc-bkp' <<<"$stow_plan"
+! grep -Fq 'LINK: .zshrc-latest-bkp' <<<"$stow_plan"
 ! grep -Fq 'level of scripts' <<<"$stow_plan"
 ! grep -Fq 'level of tests' <<<"$stow_plan"
 ! grep -Fq 'guidance/__pycache__' <<<"$stow_plan"

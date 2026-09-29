@@ -13,7 +13,26 @@ grep -Fq 'Zinit:' <<<"$output"
 grep -Fq 'Oh My Zsh:' <<<"$output"
 grep -Fq 'Mise:' <<<"$output"
 grep -Fq 'Rust/Cargo:' <<<"$output"
+grep -Fq 'MISSING (will create from .zshenv.local.example during --apply)' <<<"$output"
+grep -Fq 'MISSING (will create from templates/codex/config.toml during --apply)' <<<"$output"
 test ! -e "$test_home/.local/share/zinit/zinit.git"
 test ! -e "$test_home/.local/share/.oh-my-zsh"
+test ! -e "$test_home/.zshenv.local"
+test ! -e "$test_home/.codex/config.toml"
+
+init_home=$(mktemp -d)
+init_output="$(HOME="$init_home" XDG_DATA_HOME="$init_home/.local/share" bash "$repo_root/scripts/bootstrap-zsh" --init-local-env)"
+grep -Fq 'created (' <<<"$init_output"
+cmp "$repo_root/.zshenv.local.example" "$init_home/.zshenv.local"
+test "$(stat -c '%a' "$init_home/.zshenv.local")" = 600
+test ! -e "$init_home/.codex/config.toml"
+
+config_home=$(mktemp -d)
+config_output="$(HOME="$config_home" XDG_DATA_HOME="$config_home/.local/share" bash "$repo_root/scripts/bootstrap-zsh" --init-local-config)"
+grep -Fq 'Local zshenv:' <<<"$config_output"
+grep -Fq 'Local Codex config:' <<<"$config_output"
+cmp "$repo_root/.zshenv.local.example" "$config_home/.zshenv.local"
+cmp "$repo_root/templates/codex/config.toml" "$config_home/.codex/config.toml"
+test "$(stat -c '%a' "$config_home/.codex/config.toml")" = 600
 
 echo 'bootstrap-zsh check mode: PASS'

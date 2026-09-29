@@ -1,4 +1,9 @@
-# Copy this file to ~/.zshenv.local on the homelab host.
+# Bootstrap copies this file to ~/.zshenv.local only when that file is absent.
+# Replace placeholder values there; this tracked example must stay secret-free.
 # This must remain in .zshenv rather than .zshrc because Codex starts its
 # remote app server through the SSH login shell.
 export CODEX_SSH_SKIP_APP_SERVER_BOOT=true
+
+# Required by the Dokploy MCP server. Keep the real value only in the ignored
+# ~/.zshenv.local file; never place it in .codex/config.toml or Git.
+export DOKPLOY_API_KEY="replace-with-your-local-secret"
