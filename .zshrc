@@ -1,137 +1,108 @@
-# --- 1. Instant Prompt (P10K) ---
+# Powerlevel10k instant prompt. Keep this at the top of the file.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# --- 2. Path & Function Setup ---
-export PATH=/home/tiago/.opencode/bin:$PATH
-export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
-fpath=(~/.zsh/functions $fpath)
+# Shared paths and completion locations. `typeset -U` keeps repeated shell
+# initialisation from adding duplicate entries.
+typeset -U path PATH fpath
+path=(
+  "$HOME/.opencode/bin"
+  "$HOME/bin"
+  "$HOME/.local/bin"
+  /usr/local/bin
+  $path
+)
+fpath=(
+  "$HOME/.zsh/functions"
+  "$HOME/.zsh/completions"
+  "$HOME/.local/.zfunc"
+  "$HOME/.zfunc"
+  $fpath
+)
 
-# --- 3. Self-Installing Plugin Logic ---
+# Plugin managers are installed by the bootstrap phase, not while starting a
+# shell. A missing manager leaves a usable plain Zsh session and a clear hint.
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-[[ ! -d "$ZINIT_HOME" ]] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-source "${ZINIT_HOME}/zinit.zsh"
-
 OH_MY_ZSH_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/.oh-my-zsh"
-[[ ! -d "$OH_MY_ZSH_HOME" ]] && git clone https://github.com/ohmyzsh/ohmyzsh.git "$OH_MY_ZSH_HOME"
-export ZSH="$OH_MY_ZSH_HOME"
 
-# Helper for manual plugin clones
-install_plugin() {
-    local dir="$1" url="$2"
-    [[ ! -d "$dir" ]] && git clone --depth 1 "$url" "$dir"
-}
+if [[ -r "$ZINIT_HOME/zinit.zsh" ]]; then
+  source "$ZINIT_HOME/zinit.zsh"
 
-install_plugin "$ZSH/custom/plugins/fzf" "https://github.com/junegunn/fzf.git"
-if [[ ! -f "$ZSH/custom/plugins/fzf/bin/fzf" ]]; then
-    "$ZSH/custom/plugins/fzf/install" --bin > /dev/null 2>&1
-fi
-install_plugin "$ZSH/custom/plugins/task" "https://github.com/go-task/task.git"
-install_plugin "$ZSH/custom/plugins/pnpm" "https://github.com/ntnyq/omz-plugin-pnpm.git"
-
-if [[ ! -f "$ZSH/custom/plugins/pnpm/_pnpm" ]] && command -v pnpm &> /dev/null; then
-    pnpm completion zsh > "$ZSH/custom/plugins/pnpm/_pnpm" 2>/dev/null
+  zinit ice depth=1
+  zinit light romkatv/powerlevel10k
+  zinit light zsh-users/zsh-completions
+  zinit light zsh-users/zsh-autosuggestions
 fi
 
-# --- 4. Zinit Lights ---
-zinit ice depth=1; zinit light romkatv/powerlevel10k
-zinit light zsh-users/zsh-syntax-highlighting
-zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-autosuggestions
-
-# --- 5. Oh My Zsh Loading ---
-plugins=(
-    git 
+if [[ -r "$OH_MY_ZSH_HOME/oh-my-zsh.sh" ]]; then
+  export ZSH="$OH_MY_ZSH_HOME"
+  plugins=(
+    git
     gh
     direnv
-    docker 
-    docker-compose 
-    dotnet 
-    flutter 
-    git-commit 
-    aws 
-    dnf 
-    asdf
+    docker
+    docker-compose
+    dotnet
+    flutter
+    git-commit
+    aws
+    dnf
     mise
-    yarn 
-    npm 
-    pnpm 
+    yarn
+    npm
+    pnpm
     bun
-    nats 
-    github 
-    node 
+    nats
+    github
+    node
     z
     zoxide
-    bgnotify     
-    task 
+    bgnotify
+    task
     kubectl
-)
-source $ZSH/oh-my-zsh.sh
-source "$HOME/.cargo/env"
-source <(caddy completion zsh)
-
-# --- 6. Environment & Aliases ---
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-if [[ -d "$ZSH/custom/plugins/fzf/bin" ]]; then
-    export PATH="$ZSH/custom/plugins/fzf/bin:$PATH"
-    eval "$(fzf --zsh 2>/dev/null)"
+  )
+  source "$ZSH/oh-my-zsh.sh"
 fi
 
-# --- 8. asdf Staged Management ---
-ASDF_BIN="$HOME/.local/bin/asdf"
-ASDF_COMPLETIONS="$HOME/.zsh/completions/_asdf"
+# Oh My Zsh owns compinit. Keep every shared completion directory above its
+# initialization and do not run compinit again below.
+unalias pi 2>/dev/null
 
-if [[ ! -f "$ASDF_BIN" || ! -f "$ASDF_COMPLETIONS" ]]; then
-    if [[ ! -f "$ASDF_BIN" ]]; then
-        echo "asdf binary missing. Downloading latest..."
-        LATEST_TAG=$(curl -s https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep -oE 'v[0-9.]+' | head -1)
-        mkdir -p "${ASDF_BIN%/*}"
-        curl -sL "https://github.com/asdf-vm/asdf/releases/download/${LATEST_TAG}/asdf-${LATEST_TAG}-linux-amd64.tar.gz" | tar -xzC "${ASDF_BIN%/*}"
-        echo "asdf ${LATEST_TAG} installed. Please restart shell."
-    else
-        echo "Generating completions..."
-        mkdir -p "${ASDF_COMPLETIONS%/*}" && "$ASDF_BIN" completion zsh > "$ASDF_COMPLETIONS" 2>/dev/null
-        echo "asdf completions ready. Please restart shell."
-    fi
-    return
+if (( $+commands[wt] )); then
+  eval "$(command wt config shell init zsh)"
 fi
 
-# Load asdf
-export PATH="$HOME/.asdf/shims:$PATH"
-fpath=("$HOME/.zsh/completions" $fpath)
-
-# Custom Script Sources
-[[ -f "$HOME/.zsh/scripts/ssh-connect.zsh" ]] && source "$HOME/.zsh/scripts/ssh-connect.zsh"
-[[ -f "$HOME/.zsh/_kubectl" ]] && source "$HOME/.zsh/_kubectl"
-
-# --- 7. Load Git Tag Utilities ---
-if [[ -f "$HOME/.zsh/functions/git-tag-utils" ]]; then
-    source "$HOME/.zsh/functions/git-tag-utils"
+[[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+if (( $+commands[caddy] )); then
+  source <(caddy completion zsh)
+fi
+if (( $+commands[fzf] )); then
+  eval "$(fzf --zsh)"
 fi
 
+[[ -r "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
-# Functions
-# create directories recursively and cd into it.
+# Custom scripts managed with these dotfiles.
+[[ -r "$HOME/.zsh/scripts/ssh-connect.zsh" ]] && source "$HOME/.zsh/scripts/ssh-connect.zsh"
+[[ -r "$HOME/.zsh/_kubectl" ]] && source "$HOME/.zsh/_kubectl"
+[[ -r "$HOME/.zsh/functions/git-tag-utils" ]] && source "$HOME/.zsh/functions/git-tag-utils"
+
 mkdircd() {
-    mkdir -p "$1" && cd "$1"
+  mkdir -p -- "$1" && cd -- "$1"
 }
 
-# cd into the last directory visited by ranger (when pressing "q" to leave the tool)
 ranger_cd() {
-    temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
-    ranger --choosedir="$temp_file" -- "${@:-$PWD}"
-    if chosen_dir="$(cat -- "$temp_file")" && [ -n "$chosen_dir" ] && [ "$chosen_dir" != "$PWD" ]; then
-        cd -- "$chosen_dir"
-    fi
-    rm -f -- "$temp_file"
+  local temp_file chosen_dir
+  temp_file="$(mktemp -t 'ranger_cd.XXXXXXXXXX')" || return 1
+  ranger --choosedir="$temp_file" -- "${@:-$PWD}"
+  if chosen_dir="$(<"$temp_file")" && [[ -n "$chosen_dir" && "$chosen_dir" != "$PWD" ]]; then
+    cd -- "$chosen_dir"
+  fi
+  rm -f -- "$temp_file"
 }
 
-# Aliases
-alias ls='ls --color'
-alias ks='kubectl -n solutions'
-alias kl='kubectl --context lunalabs'
-alias kls='kubectl --context lunalabs -n solutions'
+alias ls='ls --color=auto'
 alias mkcd='mkdircd'
 alias ranger='ranger_cd'
 alias r='ranger_cd'
@@ -139,108 +110,49 @@ alias r='ranger_cd'
 # Change the current shell directory to the directory selected when Yazi exits.
 unalias y 2>/dev/null
 y() {
-    local cwd_file exit_code cwd
-    cwd_file="$(mktemp -t yazi-cwd.XXXXXXXXXX)" || return 1
-    yazi "$@" --cwd-file="$cwd_file"
-    exit_code=$?
-    cwd="$(<"$cwd_file")"
-    [[ -n "$cwd" && "$cwd" != "$PWD" ]] && builtin cd -- "$cwd"
-    rm -f -- "$cwd_file"
-    return "$exit_code"
+  local cwd_file exit_code cwd
+  cwd_file="$(mktemp -t 'yazi-cwd.XXXXXXXXXX')" || return 1
+  yazi "$@" --cwd-file="$cwd_file"
+  exit_code=$?
+  cwd="$(<"$cwd_file")"
+  [[ -n "$cwd" && "$cwd" != "$PWD" ]] && builtin cd -- "$cwd"
+  rm -f -- "$cwd_file"
+  return "$exit_code"
 }
 
-alias a='antigravity'
-alias h='herdr'
+if [[ -o interactive && -t 0 ]]; then
+  autoload -Uz url-quote-magic
+  zle -N self-insert url-quote-magic
+fi
 
-# Zsh fixes
-autoload -Uz url-quote-magic
-zle -N self-insert url-quote-magic
-
-# settings
-# History
 HISTSIZE=10000
-HISTFILE=~/.zsh_history
+HISTFILE="$HOME/.zsh_history"
 SAVEHIST=$HISTSIZE
-HISTDUP=erase
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
 setopt hist_ignore_all_dups
 setopt hist_save_no_dups
-setopt hist_ignore_dups
 setopt hist_find_no_dups
 
-# Completion styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' menu no
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 
-# Tilix fix
-if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
-    source /etc/profile.d/vte.sh
+if [[ -n ${TILIX_ID:-} || -n ${VTE_VERSION:-} ]] && [[ -r /etc/profile.d/vte.sh ]]; then
+  source /etc/profile.d/vte.sh
 fi
-# bun completions
-[ -s "/home/tiago/.bun/_bun" ] && source "/home/tiago/.bun/_bun"
 
-# bun
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+path=("$BUN_INSTALL/bin" $path)
+[[ -r "$BUN_INSTALL/_bun" ]] && source "$BUN_INSTALL/_bun"
 
+# Put personal aliases, host-specific paths, and one-machine integrations in
+# ~/.zshrc.local. It is intentionally not tracked.
+[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
-# Added by Antigravity CLI installer
-export PATH="/home/tiago/.local/bin:$PATH"
-
-
-# Added by Antigravity CLI installer
-export PATH="/home/tiagoluizpoli/.local/bin:$PATH"
-
-fpath=(~/.local/.zfunc $fpath)
-autoload -Uz compinit
-compinit
-
-# Branchlet setup: added on 2026-09-04
-_branchlet() {
-  local -a commands
-  commands=(
-    'create:Create a new worktree'
-    'list:List all worktrees'
-    'delete:Delete a worktree'
-    'settings:Manage configuration'
-  )
-  _arguments -C \
-    '(-h --help)'{-h,--help}'[Show help]' \
-    '(-v --version)'{-v,--version}'[Show version]' \
-    '(-m --mode)'{-m,--mode}'[Set mode]:mode:(menu create list delete settings)' \
-    '--from-wrapper[Called from shell wrapper]' \
-    '1:command:->command'
-  case "$state" in
-    command)
-      _describe -t commands 'branchlet commands' commands
-      ;;
-  esac
-}
-compdef _branchlet branchlet
-branchlet() {
-  if [ $# -eq 0 ]; then
-    local dir=$(FORCE_COLOR=3 command branchlet --from-wrapper)
-    if [ -n "$dir" ]; then
-      builtin cd "$dir" && echo "Branchlet: Navigated to $(pwd)"
-    fi
-  else
-    command branchlet "$@"
-  fi
-}
-# End Branchlet setup
-
-# testing branchlet changes (my changes)
- branchl() {
-    node /home/tiago/workspaces/repos/open-source/branchlet/dist/index.js "$@"
-  }
-
-if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
-fpath=(~/.zsh/completions $fpath)
-autoload -U compinit && compinit
-
-
-export CODEX_SSH_SKIP_APP_SERVER_BOOT=true
+# Load syntax highlighting last so it observes widgets created by the rest of
+# the startup file.
+if (( $+functions[zinit] )); then
+  zinit light zsh-users/zsh-syntax-highlighting
+fi

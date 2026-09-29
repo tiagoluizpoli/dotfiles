@@ -1,0 +1,11 @@
+# Copy this file to ~/.zshrc.local and adapt it for this one machine.
+# It is sourced after shared shell setup and is intentionally not tracked.
+
+# Homelab Kubernetes shortcuts.
+alias ks='kubectl -n solutions'
+alias kl='kubectl --context lunalabs'
+alias kls='kubectl --context lunalabs -n solutions'
+
+# Commands installed only on this machine.
+alias a='antigravity'
+alias h='herdr'

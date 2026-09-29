@@ -1,0 +1,4 @@
+# Copy this file to ~/.zshenv.local on the homelab host.
+# This must remain in .zshenv rather than .zshrc because Codex starts its
+# remote app server through the SSH login shell.
+export CODEX_SSH_SKIP_APP_SERVER_BOOT=true

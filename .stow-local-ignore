@@ -23,3 +23,6 @@ _darcs
 ^/COPYING
 
 configFiles
+
+# Documentation is repository material, not a home-directory deployment.
+docs
