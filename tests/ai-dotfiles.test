@@ -9,7 +9,7 @@ required_paths=(
   .agents/guidance/capability_gaps.py
   .claude/CLAUDE.md
   .claude/settings.json
-  .claude/hooks/herdr-agent-state.sh
+  .claude/hooks/run-herdr-agent-state.sh
   .claude/hooks/orca-agent-hook.sh
   .claude/hooks/orca-statusline.sh
   .codex/AGENTS.md
@@ -41,6 +41,7 @@ hook_output=$(printf '{"hook_event_name":"SessionStart"}\n' | HOME="$hook_home" 
 [[ "$hook_output" == '{}' ]]
 status_output=$(printf '{}\n' | HOME="$hook_home" "$repo_dir/.claude/hooks/orca-statusline.sh")
 [[ -z "$status_output" ]]
+HOME="$hook_home" "$repo_dir/.claude/hooks/run-herdr-agent-state.sh"
 
 for forbidden_path in \
   .codex/auth.json \
