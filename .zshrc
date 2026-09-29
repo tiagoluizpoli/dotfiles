@@ -44,6 +44,7 @@ zinit light zsh-users/zsh-autosuggestions
 plugins=(
     git 
     gh
+    direnv
     docker 
     docker-compose 
     dotnet 
@@ -52,6 +53,7 @@ plugins=(
     aws 
     dnf 
     asdf
+    mise
     yarn 
     npm 
     pnpm 
@@ -235,3 +237,10 @@ branchlet() {
  branchl() {
     node /home/tiago/workspaces/repos/open-source/branchlet/dist/index.js "$@"
   }
+
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+fpath=(~/.zsh/completions $fpath)
+autoload -U compinit && compinit
+
+
+export CODEX_SSH_SKIP_APP_SERVER_BOOT=true
