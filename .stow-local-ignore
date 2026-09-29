@@ -39,3 +39,6 @@ configFiles
 ^/\.zshrc\.local\.example$
 ^/\.zshrc-bkp$
 ^/\.zshrc-latest-bkp$
+
+# Herdr generates this runtime lock file locally; do not Stow or track it.
+^/\.config/herdr/\.plugins\.lock$
