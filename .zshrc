@@ -74,8 +74,6 @@ if (( $+commands[wt] )); then
   eval "$(command wt config shell init zsh)"
 fi
 
-[[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
-
 [[ -r "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
 # Custom scripts managed with these dotfiles.

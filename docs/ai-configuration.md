@@ -7,19 +7,31 @@ Included:
 
 - `.agents/guidance/` — shared policy and capability-gap checks used by the
   global Claude and Codex instructions.
-- `.claude/CLAUDE.md`, `settings.json`, and `agents/` — portable Claude
-  instructions, presentation defaults, Worktrunk marketplace setting, and
-  helper-agent definitions.
-- `.codex/AGENTS.md`, `config.toml`, and `rules/default.rules` — portable
-  Codex instructions, defaults, plugin marketplace setting, and safe Git
-  approval rules.
+- `.claude/CLAUDE.md`, `settings.json`, and `hooks/` — portable Claude
+  instructions, presentation defaults, marketplace setting, and lightweight
+  integration wrappers.
+- `.codex/AGENTS.md` and `rules/default.rules` — portable Codex instructions
+  and safe Git approval rules.
+- `templates/codex/config.toml` — the secret-free baseline for the local Codex
+  configuration, including the CodeGraph, Dokploy, and Homarr MCP definitions.
+  It is deliberately not Stowed.
 
-Skills are intentionally not in this repository. They are installed and
-maintained by the separate skills repository.
+Skills and skill-specific agents are intentionally not in this repository.
+They are installed and maintained by the separate skills repository.
 
 Authentication, MCP tokens, project trust, permission allowlists, hooks
 managed by external tools, session history, logs, caches, and the Anthropic
-credential store are intentionally local. The current Codex source config is
-a portable baseline; use an explicit local Codex profile or command-line
-override for a machine-specific integration rather than putting a secret in
-this repository.
+credential store are intentionally local. The Claude Orca and Herdr wrappers
+are deliberately small: they call the integration installed on the machine and
+otherwise become no-ops.
+
+Run `scripts/bootstrap-zsh --init-local-config` (or `--apply`) to create
+`~/.codex/config.toml` from the baseline only when it does not exist. Codex then
+owns that local file: project trust and hook-review hashes stay machine-specific
+and never dirty this repository. Existing local Codex configuration is never
+overwritten.
+
+The Dokploy MCP server inherits `DOKPLOY_API_KEY` from the process environment.
+Set that value in the ignored `~/.zshenv.local` for shell-launched Codex rather
+than placing it in `config.toml` or this repository. Codex project-trust and
+hook-review state are likewise generated locally and are not canonical config.

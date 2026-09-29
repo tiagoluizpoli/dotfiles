@@ -1,0 +1,45 @@
+# Baseline for ~/.codex/config.toml. The bootstrap copies it once only when
+# the local file is absent; Codex then owns the local file and its runtime state.
+
+model = "gpt-5.6-luna"
+model_reasoning_effort = "high"
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+service_tier = "default"
+sandbox_mode = "workspace-write"
+
+[features]
+hooks = true
+js_repl = false
+
+[sandbox_workspace_write]
+network_access = true
+
+[plugins."sites@openai-bundled"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."worktrunk@worktrunk"]
+enabled = true
+
+[marketplaces.worktrunk]
+source_type = "git"
+source = "https://github.com/max-sixty/worktrunk.git"
+
+[mcp_servers.codegraph]
+command = "codegraph"
+args = ["serve", "--mcp"]
+
+[mcp_servers.dokploy]
+command = "npx"
+args = ["-y", "@dokploy/mcp"]
+
+[mcp_servers.dokploy.env]
+DOKPLOY_REDACT_ENV = "true"
+DOKPLOY_TIMEOUT = "30000"
+DOKPLOY_URL = "https://lunalabs.duckdns.org"
+
+[mcp_servers.homarr]
+url = "https://homarr.lunalabs.duckdns.org/api/mcp/mcp"

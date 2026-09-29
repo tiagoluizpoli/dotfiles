@@ -52,10 +52,12 @@ Ensure you have the following installed on your system:
    ./scripts/bootstrap-zsh --apply
    ```
 
-   The bootstrap never uses `sudo`, an OS package manager, or edits shell
-   startup files. It expects `zsh`, `git`, `curl`, and GNU `stow` to be
-   installed already; it reports any missing prerequisite before making a
-   deployment possible.
+   The bootstrap never uses `sudo`, an OS package manager, or edits tracked
+   shell configuration. It creates `~/.zshenv.local` and
+   `~/.codex/config.toml` from secret-free templates only when absent; existing
+   local files are never overwritten. It expects `zsh`, `git`, `curl`, and GNU
+   `stow` to be installed already; it reports any missing prerequisite before
+   making a deployment possible.
 
 3. **Deploy dotfiles using Stow**:
 
