@@ -42,3 +42,6 @@ configFiles
 
 # Herdr generates this runtime lock file locally; do not Stow or track it.
 ^/\.config/herdr/\.plugins\.lock$
+
+# Worktrunk approval decisions are local security state, not shared config.
+^/\.config/worktrunk/approvals\.toml$

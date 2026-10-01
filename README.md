@@ -16,6 +16,7 @@ This repository contains configurations for Zsh, including theme and plugin setu
   - `zsh-autosuggestions`
   - `zsh-completions`
 - **Version Management**: [Mise](https://mise.jdx.dev/) with pinned tool versions in `.tool-versions`.
+- **Worktrees**: [Worktrunk](https://worktrunk.dev/) with a consistent global layout.
 - **GNOME Extensions**: Automated setup script for Dash to Panel, gTile, Copyous, and more.
 - **Aliases & Utilities**: Custom aliases for `kubectl`, `docker`, `ranger`, and more.
 
@@ -57,7 +58,9 @@ Ensure you have the following installed on your system:
    `~/.codex/config.toml` from secret-free templates only when absent; existing
    local files are never overwritten. It expects `zsh`, `git`, `curl`, and GNU
    `stow` to be installed already; it reports any missing prerequisite before
-   making a deployment possible.
+   making a deployment possible. During `--apply`, Worktrunk is installed
+   through Cargo when missing and uses
+   `~/workspaces/repos/05-worktrees/<repository>/<branch>` for new worktrees.
 
 3. **Deploy dotfiles using Stow**:
 

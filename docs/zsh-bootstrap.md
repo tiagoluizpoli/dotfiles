@@ -10,7 +10,7 @@ scripts/bootstrap-zsh --apply
 
 `--check` is read-only. `--apply` installs only into the user account: Mise,
 Rustup/Cargo, Zinit, Oh My Zsh, the pnpm Oh My Zsh plugin, the pinned tools in
-`.tool-versions`, and the generated Caddy completion. It never uses `sudo`,
+`.tool-versions`, Worktrunk, and the generated Caddy completion. It never uses `sudo`,
 an operating-system package manager, or edits tracked shell configuration. If
 `~/.zshenv.local` is absent, it creates a mode-600 copy of
 `.zshenv.local.example` for the host-specific values; an existing local file is

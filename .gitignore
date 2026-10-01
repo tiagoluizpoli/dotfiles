@@ -20,3 +20,7 @@
 # Herdr specifics
 .config/herdr/release-notes*
 .config/herdr/session*
+.config/herdr/.plugins.lock
+
+# Worktrunk records local approval decisions for project hook commands here.
+.config/worktrunk/approvals.toml

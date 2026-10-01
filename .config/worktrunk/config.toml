@@ -1,0 +1,2 @@
+# Keep every repository's Worktrunk worktrees in the same location on each host.
+worktree-path = "~/workspaces/repos/05-worktrees/{{ repo }}/{{ branch | sanitize }}"

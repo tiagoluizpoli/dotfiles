@@ -55,7 +55,7 @@ for forbidden_path in \
   .agents/skills \
   .claude/skills \
   .codex/skills; do
-  [[ ! -e "$repo_dir/$forbidden_path" ]] || {
+  ! git -C "$repo_dir" ls-files --error-unmatch -- "$forbidden_path" >/dev/null 2>&1 || {
     printf 'Runtime or credential material must not be tracked: %s\n' "$forbidden_path" >&2
     exit 1
   }
@@ -72,12 +72,14 @@ stow_target=$(mktemp -d)
 stow_plan=$(stow --simulate --verbose=2 --no-folding --target "$stow_target" -d "$repo_dir" . 2>&1)
 grep -Fq 'LINK: .claude/settings.json' <<<"$stow_plan"
 grep -Fq 'LINK: .agents/guidance/ROUTER.md' <<<"$stow_plan"
+grep -Fq 'LINK: .config/worktrunk/config.toml' <<<"$stow_plan"
 ! grep -Fq 'LINK: templates/codex/config.toml' <<<"$stow_plan"
 ! grep -Fq 'LINK: .zshenv.local.example' <<<"$stow_plan"
 ! grep -Fq 'LINK: .zshrc.local.example' <<<"$stow_plan"
 ! grep -Fq 'LINK: .zshrc-bkp' <<<"$stow_plan"
 ! grep -Fq 'LINK: .zshrc-latest-bkp' <<<"$stow_plan"
 ! grep -Fq 'LINK: .config/herdr/.plugins.lock' <<<"$stow_plan"
+! grep -Fq 'LINK: .config/worktrunk/approvals.toml' <<<"$stow_plan"
 ! grep -Fq 'level of scripts' <<<"$stow_plan"
 ! grep -Fq 'level of tests' <<<"$stow_plan"
 ! grep -Fq 'guidance/__pycache__' <<<"$stow_plan"
