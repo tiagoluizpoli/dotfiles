@@ -99,6 +99,7 @@ alias ls='ls --color=auto'
 alias mkcd='mkdircd'
 alias ranger='ranger_cd'
 alias r='ranger_cd'
+alias h='herdr'
 
 # Change the current shell directory to the directory selected when Yazi exits.
 unalias y 2>/dev/null
