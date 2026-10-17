@@ -55,7 +55,6 @@ if [[ -r "$OH_MY_ZSH_HOME/oh-my-zsh.sh" ]]; then
     pnpm
     bun
     nats
-    github
     node
     z
     zoxide
@@ -150,3 +149,9 @@ path=("$BUN_INSTALL/bin" $path)
 if (( $+functions[zinit] )); then
   zinit light zsh-users/zsh-syntax-highlighting
 fi
+
+# bun completions
+[ -s "/home/tiago/.bun/_bun" ] && source "/home/tiago/.bun/_bun"
+
+# Vite+ bin (https://viteplus.dev)
+. "/home/tiago/.config/vite-plus/env"

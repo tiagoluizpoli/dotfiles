@@ -6,3 +6,6 @@
 local_zshenv="${ZDOTDIR:-$HOME}/.zshenv.local"
 [[ -r "$local_zshenv" ]] && source "$local_zshenv"
 unset local_zshenv
+
+# Vite+ bin (https://viteplus.dev)
+. "/home/tiago/.config/vite-plus/env"
