@@ -155,3 +155,6 @@ fi
 
 # Vite+ bin (https://viteplus.dev)
 . "/home/tiago/.config/vite-plus/env"
+
+# kimi-code
+export PATH="/home/tiago/.kimi-code/bin:$PATH"
