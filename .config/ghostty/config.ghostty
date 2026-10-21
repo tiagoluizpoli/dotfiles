@@ -1,0 +1,24 @@
+# --- Copy and paste ---
+# Ctrl+C copies when text is selected. Without a selection it still sends
+# the normal interrupt to the running program (for example, stopping ping).
+keybind = performable:ctrl+c=copy_to_clipboard
+# Ctrl+V pastes from the system clipboard, without needing Shift.
+keybind = ctrl+v=paste_from_clipboard
+
+# --- Transparency ---
+# Tilix uses 11% transparency, which equals 89% opacity here.
+# 1.0 = solid; 0.89 = subtle transparency; 0.75 = more transparent.
+background-opacity = 0.89
+
+# --- Font ---
+# Matches Tilix's CaskaydiaCove Nerd Font Bold, size 11 points.
+# Change Bold to Regular if you prefer lighter text.
+font-family = CaskaydiaCove Nerd Font
+font-style = Bold
+font-size = 11
+
+# --- Colors ---
+# These are the saved colors in your Tilix profile. Tilix also has
+# use-theme-colors enabled, so its desktop theme may override the first two.
+background = #1E1E1E
+foreground = #A7A7A7
