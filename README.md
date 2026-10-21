@@ -29,6 +29,8 @@ Ensure you have the following installed on your system:
 - `git`
 - `zsh`
 - `stow` (GNU Stow)
+- a C compiler/linker (`cc`), required by Cargo to build Worktrunk
+  (Debian/Ubuntu: `sudo apt install build-essential`)
 
 ### Installation
 
@@ -56,8 +58,8 @@ Ensure you have the following installed on your system:
    The bootstrap never uses `sudo`, an OS package manager, or edits tracked
    shell configuration. It creates `~/.zshenv.local` and
    `~/.codex/config.toml` from secret-free templates only when absent; existing
-   local files are never overwritten. It expects `zsh`, `git`, `curl`, and GNU
-   `stow` to be installed already; it reports any missing prerequisite before
+   local files are never overwritten. It expects `zsh`, `git`, `curl`, GNU
+   `stow`, and a C compiler (`cc`) to be installed already; it reports any missing prerequisite before
    making a deployment possible. During `--apply`, Worktrunk is installed
    through Cargo when missing and uses
    `~/workspaces/repos/05-worktrees/<repository>/<branch>` for new worktrees.

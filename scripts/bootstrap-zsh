@@ -12,7 +12,7 @@ usage() {
   cat <<'EOF'
 Usage: scripts/bootstrap-zsh [--check|--init-local-env|--init-local-config|--apply]
 
-  --check  Report missing prerequisites, including GNU Stow, and user-space tools.
+  --check  Report missing prerequisites, including GNU Stow and a C compiler, and user-space tools.
   --apply  Install missing user-space tools and completions. Never uses sudo or
            an operating-system package manager.
   --init-local-env  Create ~/.zshenv.local from its placeholder template if it
@@ -65,9 +65,11 @@ tool_status() {
 
 check() {
   echo 'Bootstrap check only; no changes were made.'
-  for command_name in zsh git curl stow; do
+  for command_name in zsh git curl stow cc; do
     if command -v "$command_name" >/dev/null 2>&1; then
       status "Prerequisite $command_name" "available ($(command -v "$command_name"))"
+    elif [[ "$command_name" == cc ]]; then
+      status "Prerequisite $command_name" 'MISSING (C compiler/linker needed by Cargo; e.g. apt install build-essential)'
     else
       status "Prerequisite $command_name" 'MISSING (install it with your OS package manager)'
     fi
@@ -200,6 +202,7 @@ apply() {
   require_command git
   require_command curl
   require_command stow
+  require_command cc
   create_local_config_if_missing
 
   install_mise

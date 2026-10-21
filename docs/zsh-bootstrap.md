@@ -18,6 +18,6 @@ never overwritten. It likewise creates `~/.codex/config.toml` from the ignored
 `templates/codex/config.toml` baseline only when absent. Use
 `--init-local-config` to create both local files without downloading tools.
 
-The host must already provide `zsh`, `git`, `curl`, and GNU `stow`. Review the script
+The host must already provide `zsh`, `git`, `curl`, GNU `stow`, and a C compiler (`cc`, e.g. `build-essential`). Review the script
 before using `--apply`, as it downloads installer scripts and clones the
 listed upstream repositories.
