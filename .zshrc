@@ -75,6 +75,9 @@ fi
 
 [[ -r "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
+autoload -Uz compinit
+compinit
+
 # Custom scripts managed with these dotfiles.
 [[ -r "$HOME/.zsh/scripts/ssh-connect.zsh" ]] && source "$HOME/.zsh/scripts/ssh-connect.zsh"
 [[ -r "$HOME/.zsh/_kubectl" ]] && source "$HOME/.zsh/_kubectl"
@@ -152,9 +155,6 @@ fi
 
 # bun completions
 [ -s "/home/tiago/.bun/_bun" ] && source "/home/tiago/.bun/_bun"
-
-# Vite+ bin (https://viteplus.dev)
-. "/home/tiago/.config/vite-plus/env"
 
 # kimi-code
 export PATH="/home/tiago/.kimi-code/bin:$PATH"
