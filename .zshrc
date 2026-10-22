@@ -155,6 +155,11 @@ fi
 
 # bun completions
 [ -s "/home/tiago/.bun/_bun" ] && source "/home/tiago/.bun/_bun"
+# codex completions
+eval "$(codex completion zsh)"
 
 # kimi-code
 export PATH="/home/tiago/.kimi-code/bin:$PATH"
+
+# Vite+ bin (https://viteplus.dev)
+. "/home/tiago/.config/vite-plus/env"
