@@ -30,6 +30,36 @@ model section overrides this one.
   type-level knot that later work depends on).
 - Escalate one tier only after a failed attempt, never in advance.
 
+Codex tiers map onto the same roles. Pass them with `--model` (and `--effort`)
+on `orca orchestration worker-start --agent codex`:
+
+| Role | Claude | Codex |
+|---|---|---|
+| Lookups, running and waiting on commands, merge/push, mechanical edits from exact instructions | Haiku | `gpt-6-luna` |
+| Ticket implementation, review fixes | Sonnet | `gpt-5.6-terra` |
+| Coordinator, code review, genuinely hard pieces | Opus | `gpt-6.1-sol` |
+
+Default effort `medium`; `high` only for a retry or a judgement-heavy fix.
+
+## Codex budget
+
+Codex's five-hour window is small: in spec #599 one `gpt-6.1-sol` worker doing
+a whole ticket, then parallel Terra workers, used it up twice. So:
+
+- A Sol coordinator only dispatches, decides and reviews. It never implements
+  or watches a gate itself.
+- The brief carries everything the worker needs (ticket, named files, decided
+  design), so it doesn't explore. Tell it to read only the ticket, the files it
+  names and the guidance route for that area, not the whole guidance tree.
+- Long gates (`validate:affected`, pre-push) run in the background and block on
+  exit; never poll a log with model turns. Hand pure waiting to Luna.
+- A dispatched worker can't start its own workers in the coordinator's Run
+  (`consumer_fenced`). The coordinator dispatches helpers into the ticket's
+  worktree: `--worktree path:<dir> --parent <task_id>`.
+- When the limit hits, a Codex worker stops on a "switch model?" menu. After
+  the reset, choose "Keep current model" and send it a continue prompt with
+  `orca terminal send`. Its worktree and uncommitted work are intact.
+
 ## Spec runs (`/implement-spec`)
 
 A spec's own process section overrides this one.
