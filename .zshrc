@@ -158,6 +158,12 @@ fi
 # codex completions
 eval "$(codex completion zsh)"
 
+# herdr completions
+source <(herdr completion zsh)
+
+# tailscale completions
+source <(tailscale completion zsh)
+
 # kimi-code
 export PATH="/home/tiago/.kimi-code/bin:$PATH"
 
