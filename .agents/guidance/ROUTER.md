@@ -1,6 +1,8 @@
 # Guidance router
 
-Read [baseline.md](baseline.md) for every task.
+Keep the contents of [baseline.md](baseline.md) in every task's context,
+including delegated tasks. Load and follow it before work; restore it after
+compaction or handoff if its contents are absent.
 
 Classify the request and inspected targets by meaning, then load every matching
 profile. A cross-surface task composes profiles. Leave unrelated profiles
@@ -9,7 +11,8 @@ unloaded.
 - TypeScript source, configuration, or review: [languages/typescript.md](languages/typescript.md).
 - Technology, framework, workflow, unfamiliar API, or version-sensitive work:
   [skills-and-research.md](skills-and-research.md).
-- Coordinating child agents, Orca workers, or parallel worktrees, and every
+- Before substantial codebase exploration, research or implementation; when
+  coordinating child agents, Orca workers or parallel worktrees; and for every
   `/implement-spec` run: [agent-coordination.md](agent-coordination.md).
 
 Apply instructions in this order:

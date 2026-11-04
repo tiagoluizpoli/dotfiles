@@ -1,2 +1,5 @@
 prefix_rule(pattern=["git", "fetch"], decision="allow")
 prefix_rule(pattern=["git", "switch", "-c", "feat/worktree-path-template", "origin/main"], decision="allow")
+prefix_rule(pattern=["cp", "-p", ".agents/guidance/agent-coordination.md", ".agents/guidance/agent-coordination.md.before-budget-revision.bak"], decision="allow")
+prefix_rule(pattern=["cp", "-p", ".agents/guidance/ROUTER.md", ".agents/guidance/ROUTER.md.before-budget-revision.bak"], decision="allow")
+prefix_rule(pattern=["wt", "remove", "docs/agent-coordination-budget", "--force", "--foreground", "--no-hooks"], decision="allow")
