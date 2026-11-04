@@ -164,8 +164,3 @@ source <(herdr completion zsh)
 # tailscale completions
 source <(tailscale completion zsh)
 
-# kimi-code
-export PATH="/home/tiago/.kimi-code/bin:$PATH"
-
-# Vite+ bin (https://viteplus.dev)
-. "/home/tiago/.config/vite-plus/env"
