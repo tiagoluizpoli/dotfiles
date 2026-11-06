@@ -11,8 +11,9 @@ unloaded.
 - TypeScript source, configuration, or review: [languages/typescript.md](languages/typescript.md).
 - Technology, framework, workflow, unfamiliar API, or version-sensitive work:
   [skills-and-research.md](skills-and-research.md).
-- Before substantial codebase exploration, research or implementation; when
-  coordinating child agents, Orca workers or parallel worktrees; and for every
+- For tracked-ticket work; before substantial codebase exploration, research
+  or implementation; when coordinating child agents, Orca workers or parallel
+  worktrees; and for every
   `/implement-spec` run: [agent-coordination.md](agent-coordination.md).
 
 Apply instructions in this order:

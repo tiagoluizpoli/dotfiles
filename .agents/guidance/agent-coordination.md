@@ -99,6 +99,35 @@ folder. Session scratchpads and `/tmp` are not durable run state.
   an isolated rerun; explain discrepancies or mark them unresolved before
   treating the gate as satisfied.
 
+## Ticket status and history
+
+- Use the project's existing tracker and workflow (hosted or local files).
+  Identify the ticket, parent specification and authoritative workflow status
+  field, including board status where used. Discover its update operation
+  through the tracker tools. Assignment, labels and comments alone do not
+  satisfy a status transition; local claim procedures supplement this rule.
+- Update automatically: In progress before implementation starts; Blocked when
+  work cannot proceed, with the reason; In review when implementation and
+  required validation are ready for review; Done after the project's review,
+  integration and acceptance criteria are met. Resume the appropriate state
+  when a blocker clears or review requires rework.
+- At each transition, write the workflow status and read it back from the
+  tracker. The transition is complete only when the returned value matches
+  the intended state. Verify In progress before implementation, rather than
+  deferring synchronization to handoff. Report missing access, unsupported
+  transitions or failed writes immediately, with the pending update.
+- At transitions and material developments, append a brief, dated ticket update:
+  what changed and why, decisions or deviations, significant failures and
+  their fixes, validation evidence and remaining work. Link artifacts and logs
+  instead of copying them; retain history and skip routine activity narration.
+- Keep the parent specification's status and concise progress summary aligned
+  with its tickets, linking their updates. Mark the parent Done only when all
+  required tickets and acceptance criteria are satisfied.
+- Assign one update owner per ticket: the coordinator in delegated runs, the
+  working agent otherwise. Workers supply evidence through their reports.
+  Preserve unsynced changes in run notes for retry; reconcile them before
+  handoff or completion and report anything still pending.
+
 ## Execution budget
 
 - In delegated runs, the main session dispatches, decides, integrates and
