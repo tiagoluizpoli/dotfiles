@@ -39,8 +39,10 @@ these defaults.
 | Moderate | Implementation with established patterns, routine review fixes, ordinary conflict resolution | Medium |
 | Complex | Ambiguous design, difficult diagnosis, consequential review, demanding coordination | High |
 
-Choose the initial tier from the requirements. After a failure caused by
-insufficient capability, escalate one tier with the evidence and work so far.
+Choose the initial tier from the requirements. Bounded UI work with established
+patterns starts at medium; complex, high-judgement design may start at high.
+After a failure caused by insufficient capability, escalate one tier with the
+evidence and work so far.
 Fix missing context or tool failures at the current tier when those explain
 the failure. Default effort is medium where supported; use high for
 judgement-heavy work or a retry requiring deeper reasoning. Model tier and
@@ -64,7 +66,7 @@ the preferred provider. Current mapping carried forward from the existing file:
 | Tier | Claude | Codex |
 |---|---|---|
 | Small | `sonnet-4.5` | `gpt-6-luna` |
-| Medium | `sonnet-5.5` | `gpt-5.6-terra` |
+| Medium | `sonnet-5.5` | `gpt-6.1-terra` |
 | High | `opus-5.5` | `gpt-6.1-sol` |
 
 For any unlisted provider, inspect its available models and supported settings
@@ -82,8 +84,9 @@ available, report the blocker.
 ## Durable run state
 
 Keep a run's notes (task ids, briefs, copied specs, reports) in
-`~/.local/state/agent-runs/<run>/`. That folder is machine-only: never inside
-a repository or the dotfiles. Point workers at issues, commits and that
+`~/.local/state/agent-runs/<run>/`. Record each dispatch there with role, tier,
+model and effort, plus a brief reason for high-tier or high-effort choices.
+That folder is machine-only: never inside a repository or the dotfiles. Point workers at issues, commits and that
 folder. Session scratchpads and `/tmp` are not durable run state.
 
 ## Worker briefs and reports
@@ -168,8 +171,10 @@ A spec's own process section overrides this one.
   the full gate once from a clean generated state; rerun after changes that
   invalidate the result. Select its tier for the judgement the check needs.
 - **Merging:** before merging, check the report against evidence (exit codes,
-  typecheck). The coordinator merges; delegate conflicts needing implementation
-  judgement. Inspect code or logs when reports leave correctness unresolved.
+  typecheck). The coordinator performs clean routine merges; delegate conflicts
+  or substantive integration judgement. Preserve final code review and any
+  repository- or spec-required independent review. Inspect code or logs when
+  reports leave correctness unresolved.
 
 ## After a crash or restart
 

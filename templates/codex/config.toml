@@ -1,8 +1,9 @@
 # Baseline for ~/.codex/config.toml. The bootstrap copies it once only when
 # the local file is absent; Codex then owns the local file and its runtime state.
+# These are startup fallbacks; select model and effort per dispatched task slice.
 
-model = "gpt-5.6-luna"
-model_reasoning_effort = "high"
+model = "gpt-6.1-terra"
+model_reasoning_effort = "medium"
 approval_policy = "on-request"
 approvals_reviewer = "auto_review"
 service_tier = "default"

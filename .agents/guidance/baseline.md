@@ -28,10 +28,11 @@ abstractions, unrelated cleanup, and impossible-case handling.
 
 ## Delivery
 
-Implement on a new branch off the base, in its own worktree, managed through
-worktrunk (`wt`) rather than raw `git worktree`/`git branch`. Keep commits
-atomic and conventional; before a repo's first commit, read its commitlint
-config for the allowed types and scopes. Commit, push, open a PR, install or
+For substantial implementation or collision risk, work on a new branch off the
+base in its own worktree, managed through worktrunk (`wt`). Small bounded
+guidance, config or documentation edits may use the current checkout; preserve
+unrelated edits. Keep commits atomic and conventional; before a repo's first
+commit, read its commitlint config for the allowed types and scopes. Commit, push, open a PR, install or
 configure a capability, or change credentials only with the user's explicit
 request.
 
