@@ -59,17 +59,24 @@ if [[ -r "$OH_MY_ZSH_HOME/oh-my-zsh.sh" ]]; then
     z
     zoxide
     bgnotify
-    task
     kubectl
   )
   source "$ZSH/oh-my-zsh.sh"
+fi
+
+# Mise keeps shims on PATH even when the current directory has no selected
+# version. Load Task's completion only when its command resolves successfully;
+# this keeps shells started outside a mise project quiet.
+if [[ -r "$ZSH/plugins/task/task.plugin.zsh" ]] && (( $+commands[task] )) &&
+   command task --version >/dev/null 2>&1; then
+  source "$ZSH/plugins/task/task.plugin.zsh"
 fi
 
 # Oh My Zsh owns compinit. Keep every shared completion directory above its
 # initialization and do not run compinit again below.
 unalias pi 2>/dev/null
 
-if (( $+commands[wt] )); then
+if (( $+commands[wt] )) && command wt --version >/dev/null 2>&1; then
   eval "$(command wt config shell init zsh)"
 fi
 

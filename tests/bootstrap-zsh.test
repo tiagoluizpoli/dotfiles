@@ -15,12 +15,105 @@ grep -Fq 'Oh My Zsh:' <<<"$output"
 grep -Fq 'Mise:' <<<"$output"
 grep -Fq 'Rust/Cargo:' <<<"$output"
 grep -Fq 'Worktrunk:' <<<"$output"
+grep -Eq '^worktrunk[[:space:]]+' "$repo_root/.tool-versions"
 grep -Fq 'MISSING (will create from .zshenv.local.example during --apply)' <<<"$output"
 grep -Fq 'MISSING (will create from templates/codex/config.toml during --apply)' <<<"$output"
 test ! -e "$test_home/.local/share/zinit/zinit.git"
 test ! -e "$test_home/.local/share/.oh-my-zsh"
 test ! -e "$test_home/.zshenv.local"
 test ! -e "$test_home/.codex/config.toml"
+
+write_stub() {
+  local name="$1" body="$2"
+  printf '#!/usr/bin/env bash\nset -euo pipefail\n%s\n' "$body" > "$fake_bin/$name"
+  chmod +x "$fake_bin/$name"
+}
+
+toolchain_check_home=$(mktemp -d)
+toolchain_check_bin="$toolchain_check_home/bin"
+mkdir -p "$toolchain_check_bin"
+ln -s "$(command -v true)" "$toolchain_check_bin/rustc"
+ln -s "$(command -v true)" "$toolchain_check_bin/cargo"
+toolchain_check_output="$(
+  HOME="$toolchain_check_home" \
+  XDG_DATA_HOME="$toolchain_check_home/.local/share" \
+  PATH="$toolchain_check_bin:/usr/bin:/bin" \
+  bash "$repo_root/scripts/bootstrap-zsh" --check
+)"
+grep -Fq 'Rust/Cargo:    installed' <<<"$toolchain_check_output"
+test ! -e "$toolchain_check_bin/rustup"
+
+fake_home=$(mktemp -d)
+fake_bin="$fake_home/bin"
+mkdir -p "$fake_bin"
+write_stub rustc 'exit 0'
+write_stub cargo 'printf "%s\\n" "$*" >> "${CARGO_LOG:?}"; mkdir -p "$HOME/.cargo/bin"; printf "%s\\n" "#!/bin/bash" "exit 0" > "$HOME/.cargo/bin/wt"; chmod +x "$HOME/.cargo/bin/wt"'
+write_stub zsh 'exit 0'
+write_stub stow 'exit 0'
+write_stub cc 'exit 0'
+write_stub git 'if [[ "${1:-}" == clone ]]; then destination="${@: -1}"; mkdir -p "$destination/.git"; fi'
+write_stub curl 'printf "%s\\n" "$*" >> "${CURL_LOG:?}"; exit 91'
+write_stub mise 'printf "%s\\n" "$*" >> "${MISE_LOG:?}"; if [[ "${1:-}" == exec ]]; then printf "# caddy completion\\n"; fi'
+
+fake_cargo_log="$fake_home/cargo.log"
+fake_curl_log="$fake_home/curl.log"
+fake_mise_log="$fake_home/mise.log"
+fake_apply_output="$(
+  HOME="$fake_home" \
+  XDG_DATA_HOME="$fake_home/.local/share" \
+  PATH="$fake_bin:/usr/bin:/bin" \
+  CARGO_LOG="$fake_cargo_log" \
+  CURL_LOG="$fake_curl_log" \
+  MISE_LOG="$fake_mise_log" \
+  bash "$repo_root/scripts/bootstrap-zsh" --apply
+)"
+grep -Fq 'Bootstrap complete.' <<<"$fake_apply_output"
+grep -Fq 'install' "$fake_mise_log"
+grep -Fq 'exec -- caddy completion zsh' "$fake_mise_log"
+test ! -e "$fake_curl_log"
+test ! -e "$fake_cargo_log"
+
+fake_apply_output_again="$(
+  HOME="$fake_home" \
+  XDG_DATA_HOME="$fake_home/.local/share" \
+  PATH="$fake_bin:/usr/bin:/bin" \
+  CARGO_LOG="$fake_cargo_log" \
+  CURL_LOG="$fake_curl_log" \
+  MISE_LOG="$fake_mise_log" \
+  bash "$repo_root/scripts/bootstrap-zsh" --apply
+)"
+grep -Fq 'Bootstrap complete.' <<<"$fake_apply_output_again"
+test ! -e "$fake_curl_log"
+test ! -e "$fake_cargo_log"
+
+fallback_home=$(mktemp -d)
+fallback_bin="$fallback_home/bin"
+fallback_support_bin="$fallback_home/support-bin"
+mkdir -p "$fallback_bin" "$fallback_support_bin"
+for command_name in bash sh env mkdir mktemp rm cp chmod dirname; do
+  ln -s "/usr/bin/$command_name" "$fallback_support_bin/$command_name"
+done
+fake_bin="$fallback_bin"
+write_stub zsh 'exit 0'
+write_stub stow 'exit 0'
+write_stub cc 'exit 0'
+write_stub git 'if [[ "${1:-}" == clone ]]; then destination="${@: -1}"; mkdir -p "$destination/.git"; fi'
+write_stub curl 'printf "%s\\n" "$*" >> "${CURL_LOG:?}"; exit 91'
+write_stub mise 'printf "%s\\n" "$*" >> "${MISE_LOG:?}"; if [[ "${1:-}" == exec && "${4:-}" == cargo ]]; then printf "%s\\n" "install worktrunk" >> "${CARGO_LOG:?}"; elif [[ "${1:-}" == exec ]]; then printf "# caddy completion\\n"; fi'
+
+fallback_curl_log="$fallback_home/curl.log"
+fallback_mise_log="$fallback_home/mise.log"
+fallback_apply_output="$(
+  HOME="$fallback_home" \
+  XDG_DATA_HOME="$fallback_home/.local/share" \
+  PATH="$fallback_bin:$fallback_support_bin" \
+  CURL_LOG="$fallback_curl_log" \
+  MISE_LOG="$fallback_mise_log" \
+  bash "$repo_root/scripts/bootstrap-zsh" --apply
+)"
+grep -Fq 'Bootstrap complete.' <<<"$fallback_apply_output"
+grep -Fq 'install' "$fallback_mise_log"
+test ! -e "$fallback_curl_log"
 
 init_home=$(mktemp -d)
 init_output="$(HOME="$init_home" XDG_DATA_HOME="$init_home/.local/share" bash "$repo_root/scripts/bootstrap-zsh" --init-local-env)"

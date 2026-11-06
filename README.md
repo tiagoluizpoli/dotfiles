@@ -60,8 +60,10 @@ Ensure you have the following installed on your system:
    `~/.codex/config.toml` from secret-free templates only when absent; existing
    local files are never overwritten. It expects `zsh`, `git`, `curl`, GNU
    `stow`, and a C compiler (`cc`) to be installed already; it reports any missing prerequisite before
-   making a deployment possible. During `--apply`, Worktrunk is installed
-   through Cargo when missing and uses
+   making a deployment possible. A usable system-installed `rustc` and `cargo`
+   pair is reported for Cargo-based workflows, but Worktrunk is installed as a
+   pinned Mise tool from `.tool-versions`. During `--apply`, Mise restores the
+   pinned tools and uses
    `~/workspaces/repos/05-worktrees/<repository>/<branch>` for new worktrees.
 
 3. **Deploy dotfiles using Stow**:
