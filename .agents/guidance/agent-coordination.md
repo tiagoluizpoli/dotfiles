@@ -28,10 +28,10 @@ Acceptance criteria remain the quality bar for every provider.
 
 ## Model selection
 
-Match capability to each piece's complexity. Choose the least costly capable
-model at the required quality, using current preferences and available
-subscription allowance. A spec's or skill's own model section overrides
-these defaults.
+Treat output quality and subscription budget as joint constraints. Match
+capability to each piece's complexity, using current preferences and available
+allowance. Choose the least costly capable model that meets acceptance criteria.
+A spec's or skill's own model section overrides these defaults.
 
 | Complexity | Work | Tier |
 |---|---|---|
@@ -39,14 +39,18 @@ these defaults.
 | Moderate | Implementation with established patterns, routine review fixes, ordinary conflict resolution | Medium |
 | Complex | Ambiguous design, difficult diagnosis, consequential review, demanding coordination | High |
 
-Choose the initial tier from the requirements. Bounded UI work with established
-patterns starts at medium; complex, high-judgement design may start at high.
-After a failure caused by insufficient capability, escalate one tier with the
-evidence and work so far.
-Fix missing context or tool failures at the current tier when those explain
-the failure. Default effort is medium where supported; use high for
-judgement-heavy work or a retry requiring deeper reasoning. Model tier and
-reasoning effort are separate choices.
+Select per slice; isolate hard decisions when the handoff saves more than it
+costs. Escalate one tier for evidenced capability failure; repair context or tool
+failures at the current tier. Default effort is medium; high requires deeper
+reasoning. Tier and effort are separate choices.
+
+### Frontend implementation
+
+| Work | Starting tier |
+|---|---|
+| Exact mechanical component, copy or style edits | Small |
+| Assemble existing components; wire forms, data and validation; follow established layouts | Medium |
+| Novel interaction design, substantial visual refinement or difficult cross-cutting diagnosis | High, with the specific uncertainty recorded |
 
 ### Current preferences
 
@@ -56,7 +60,7 @@ provider rankings. Keep provider and model preferences here for one-place edits.
 | Work | Preferred route |
 |---|---|
 | Code review | Codex, `gpt-6.1-sol`, medium effort, through Orca orchestration |
-| Analysis and UI development | GPT models through Codex |
+| Analysis and frontend implementation | GPT models through Codex; tier by complexity above |
 | Backend and other complex implementation | Claude |
 | Other implementation | Claude |
 
